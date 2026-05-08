@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Project Report - MNIST</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; animation: fadeInUp 0.8s ease-out; }
+
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 2.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; margin-bottom: 10px; }
+
+        .badge {
+            background: var(--accent); color: white; padding: 5px 15px; border-radius: 20px;
+            font-size: 0.85rem; text-transform: uppercase; font-weight: 600; display: inline-block; margin-bottom: 15px;
+        }
+
+        /* CREATIVE PROFILE SECTION */
+        .creative-profile {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            max-width: 450px; margin: 30px auto 0; padding: 30px; border-radius: 24px;
+            box-shadow: 0 15px 35px -5px rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.1); position: relative; overflow: hidden; transition: transform 0.3s ease;
+        }
+        .creative-profile:hover { transform: translateY(-5px); }
+
+        .profile-img-container {
+            width: 130px; height: 130px; margin: 0 auto 20px; border-radius: 50%; padding: 4px;
+            background: linear-gradient(45deg, var(--accent), var(--success), #a855f7);
+            background-size: 200% 200%; animation: gradient-spin 3s linear infinite;
+        }
+        .profile-img-container img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff;
+        }
+        @keyframes gradient-spin { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .animated-name {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;
+            animation: pulse-text 2s ease-in-out infinite alternate; display: flex; justify-content: center;
+        }
+        @keyframes pulse-text { 0% { transform: scale(0.98); text-shadow: 0 0 15px rgba(59, 130, 246, 0.1); } 100% { transform: scale(1.02); text-shadow: 0 0 25px rgba(59, 130, 246, 0.3); } }
+
+        .profile-role { color: var(--text-muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 20px; text-align: center; }
+
+        .social-links { display: flex; justify-content: center; gap: 20px; }
+        .social-links a {
+            display: flex; align-items: center; justify-content: center; width: 45px; height: 45px;
+            background: var(--bg); color: var(--text-muted); font-size: 1.3rem; border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none;
+        }
+        .social-links a:hover {
+            background: var(--accent); color: #ffffff; transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Main Content Cards */
+        section {
+            background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin-bottom: 30px; transition: transform 0.3s ease;
+        }
+        section:hover { transform: translateY(-5px); }
+        h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
+        h2 i { color: var(--accent); }
+        p { color: var(--text-main); margin-bottom: 20px; font-size: 1.05rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-item { background: var(--bg); padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-item h3 { color: var(--accent); font-size: 1.4rem; }
+        .stat-item p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+        .step-list { list-style: none; }
+        .step-list li { padding: 15px 0; border-bottom: 1px solid var(--bg); display: flex; gap: 15px; align-items: flex-start; }
+        .step-list li i { margin-top: 5px; color: var(--success); }
+
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: var(--bg); padding: 15px; font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+        td { padding: 15px; border-bottom: 1px solid var(--bg); font-size: 0.95rem; }
+        .winner-row { background-color: rgba(16, 185, 129, 0.05); }
+        .winner-tag { background: var(--success); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+
+        .vis-container { text-align: center; background: var(--primary); padding: 20px; border-radius: 15px; }
+        .vis-container img { max-width: 100%; border-radius: 10px; transition: scale 0.3s ease; }
+        .vis-container img:hover { scale: 1.02; }
+
+        .conclusion-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%); color: white; padding: 40px; border-radius: 20px;
+            position: relative; overflow: hidden;
+        }
+        .conclusion-banner::after {
+            content: "\f0eb"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: -20px; bottom: -20px; font-size: 10rem; opacity: 0.05;
+        }
+        .conclusion-banner h3 { color: var(--success); margin-bottom: 15px; }
+
+        .btn-print {
+            display: block; width: fit-content; margin: 40px auto; padding: 15px 40px; background: var(--accent); color: white;
+            border: none; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4); transition: all 0.3s ease;
+        }
+        .btn-print:hover { transform: scale(1.05); background: #2563eb; }
+
+        @media print {
+            .btn-print { display: none; }
+            body { padding: 0; background: white; }
+            section, .creative-profile { box-shadow: none; border: 1px solid #eee; break-inside: avoid; }
+            .social-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <span class="badge">Technical Report</span>
+            <h1>Neural Network Project</h1>
+            <p style="color: var(--text-muted); font-weight: 500;">MNIST Handwritten Digit Recognition</p>
+            
+            <div class="creative-profile">
+                <div class="profile-img-container">
+                    <img src="zezo.jpeg" alt="Aboelyazed Hatem">
+                </div>
+                
+                <h2 class="animated-name">Aboelyazed Hatem</h2>
+                <p class="profile-role">AI & Deep Learning Track</p>
+                
+                <div class="social-links">
+                    <a href="https://github.com/Aboelyazed21/NNProject" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/aboelyazzed-hatem-892bba360" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </header>
+
+        <section>
+            <h2><i class="fa-solid fa-circle-dot"></i> Problem Description</h2>
+            <p>
+                The objective of this project is to develop a <strong>Multilayer Perceptron (MLP)</strong> model capable of identifying handwritten digits (0-9) with high precision. This is a multi-class classification challenge using grayscale imagery.
+            </p>
+        </section>
+
+        <section>
+            <h2><i class="fa-solid fa-microchip"></i> Dataset & Preprocessing</h2>
+            <div class="grid">
+                <div class="stat-item">
+                    <h3>60,000</h3>
+                    <p>Training Images</p>
+                </div>
+                <div class="stat-item">
+                    <h3>10,000</h3>
+                    <p>Testing Images</p>
+                </div>
+                <div class="stat-item">
+                    <h3>28x28</h3>
+                    <p>Image Resolution</p>
+                </div>
+            </div>
+            <ul class="step-list">
+                <li><i class="fa-solid fa-check-circle"></i> <strong>Normalization:</strong> Scaled pixel values from [0, 255] to [0, 1] for gradient stability.</li>
+                <li><i class="fa-solid fa-check-circle"></i> <strong>Flattening:</strong> Reshaped 2D matrices into 1D vectors of size 784.</li>
+                <li><i class="fa-solid fa-check-circle"></i> <strong>Validation:</strong> Split 20% of training data for real-time monitoring.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2><i class="fa-solid fa-diagram-project"></i> Model Architectures</h2>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: var(--accent); margin-bottom: 10px;">Experiment 1: ReLU Baseline</h3>
+                <p style="font-size: 0.95rem;">256 Neurons &rarr; 128 Neurons | Activation: ReLU | Regularization: Batch Norm + Dropout (0.3/0.2)</p>
+            </div>
+
+            <div>
+                <h3 style="color: var(--text-muted); margin-bottom: 10px;">Experiment 2: Tanh Modified</h3>
+                <p style="font-size: 0.95rem;">128 Neurons &rarr; 64 Neurons | Activation: Tanh | Regularization: Batch Norm + Dropout (0.2/0.1)</p>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fa-solid fa-ranking-star"></i> Results Comparison</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Experiment</th>
+                            <th>Architecture</th>
+                            <th>Accuracy</th>
+                            <th>Final Loss</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="winner-row">
+                            <td><strong>Exp 1</strong> <span class="winner-tag">BEST</span></td>
+                            <td>ReLU (256/128)</td>
+                            <td style="color: var(--success); font-weight: 800;">97.94%</td>
+                            <td>0.0695</td>
+                        </tr>
+                        <tr>
+                            <td>Exp 2</td>
+                            <td>Tanh (128/64)</td>
+                            <td>97.42%</td>
+                            <td>0.0933</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fa-solid fa-chart-area"></i> Performance Visualization</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+                The curves below demonstrate steady convergence and successful regularization.
+            </p>
+            <div class="vis-container">
+                <img src="Figure_1.png" alt="Training Accuracy and Loss Curves">
+            </div>
+        </section>
+
+        <div class="conclusion-banner">
+            <h3><i class="fa-solid fa-lightbulb"></i> Final Conclusion</h3>
+            <p style="color: #cbd5e1;">
+                Experiment 1 emerged as the superior model. The combination of <strong>ReLU activation</strong>, a deeper neuron count, and a stable learning rate (0.001) effectively captured complex features. 
+                The inclusion of <strong>Batch Normalization</strong> and <strong>Dropout</strong> ensured high generalization with 97.94% test accuracy.
+            </p>
+        </div>
+
+        <button class="btn-print" onclick="window.print()">
+            <i class="fa-solid fa-file-pdf"></i> Download as PDF
+        </button>
+
+    </div>
+
+</body>
+</html>
